@@ -9,6 +9,9 @@ import {
 import {
   DeleteScheduleCommandHandler,
 } from './backoffice/bounded-contexts/course-schedule/application/commands/delete-schedule.command';
+import {
+  UpdateScheduleCommandHandler,
+} from './backoffice/bounded-contexts/course-schedule/application/commands/update-schedule.command';
 import { ScheduleController } from './backoffice/bounded-contexts/course-schedule/interfaces/http/schedule.controller';
 
 const modules = [CqrsModule];
@@ -17,6 +20,7 @@ const providers = [
   AppService,
   CreateScheduleCommandHandler,
   DeleteScheduleCommandHandler,
+  UpdateScheduleCommandHandler,
 ];
 @Module({
   imports: [...modules],

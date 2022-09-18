@@ -1,13 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { ScheduleVO } from '../value-objects/schedule-id.vo';
+
 export type RequirementProperties = {
-  readonly scheduleId: string;
+  readonly scheduleId: ScheduleVO;
   readonly text: string;
 };
 
 export class Requirement {
   private readonly requirementId: string;
-  private readonly scheduleId: string;
+  private readonly scheduleId: ScheduleVO;
   private readonly text: string;
 
   constructor(properties: RequirementProperties) {

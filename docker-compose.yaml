@@ -7,6 +7,13 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 12345
-      MYSQL_DATABASE: test
-      MYSQL_USER: test
-      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: cursosdev
+      MYSQL_USER: cursosdev
+      MYSQL_PASSWORD: 12345
+    ports:
+      - 3307:3306
+    volumes:
+      - vol-mysql:/var/lib/mysql
+
+volumes:
+  vol-mysql:

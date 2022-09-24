@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 
 import { Schedule } from '../../domain/aggregates/schedule';
@@ -22,8 +23,16 @@ export class UpdateScheduleCommandHandler
   implements ICommandHandler<UpdateScheduleCommand, any>
 {
   private findScheduleById(scheduleId: string): Schedule {
+    const scheduleIdResult = ScheduleVO.create(scheduleId);
+
+    if (scheduleIdResult.isErr()) {
+      throw new BadRequestException(scheduleIdResult.error.message);
+    }
+
+    const scheduleIdVO = scheduleIdResult.value;
+
     return new Schedule({
-      scheduleId: ScheduleVO.create(scheduleId),
+      scheduleId: scheduleIdVO,
       courseId: '723915cb-324e-4d6c-8a46-6e660c79a1e6',
       subject: 'Curso Docker y Kubernetes desde cero',
       status: 'READY',

@@ -1,10 +1,13 @@
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ScheduleFactory } from '../../domain/aggregates/schedule.factory';
+import { ScheduleRepository } from '../../domain/repositories/schedule.repository';
 import { courseIdResult, CourseVO } from '../../domain/value-objects/course-id.vo';
 import { ScheduleVO } from '../../domain/value-objects/schedule-id.vo';
+import { ScheduleInfrastructure } from '../../infrastructure/schedule.infrastructure';
+import { ScheduleCreateResponse, ScheduleResponse } from '../dtos/schedule-response.dto';
 
 export class CreateScheduleCommand implements ICommand {
   constructor(
@@ -16,9 +19,15 @@ export class CreateScheduleCommand implements ICommand {
 
 @CommandHandler(CreateScheduleCommand)
 export class CreateScheduleCommandHandler
-  implements ICommandHandler<CreateScheduleCommand, any>
+  implements ICommandHandler<CreateScheduleCommand, ScheduleCreateResponse>
 {
-  execute(command: CreateScheduleCommand): Promise<any> {
+  constructor(
+    @Inject(ScheduleInfrastructure) private repository: ScheduleRepository,
+  ) {}
+
+  async execute(
+    command: CreateScheduleCommand,
+  ): Promise<ScheduleCreateResponse> {
     const { courseId, subject, status } = command;
 
     const courseIdResult = CourseVO.create(courseId);
@@ -40,13 +49,30 @@ export class CreateScheduleCommandHandler
 
     const scheduleId = scheduleIdResult.value;
 
-    const schedule = new ScheduleFactory().create(
+    const scheduleResult = new ScheduleFactory().create(
       scheduleId,
       courseId,
       subject,
       status,
     );
 
-    return Promise.resolve();
+    if (scheduleResult.isErr()) {
+      throw new BadRequestException(
+        scheduleResult.error.message,
+        scheduleResult.error.name,
+      );
+    }
+
+    const scheduleCreateResult = await this.repository.save(
+      scheduleResult.value,
+    );
+    if (scheduleCreateResult.isErr()) {
+      throw new InternalServerErrorException(
+        scheduleCreateResult.error.message,
+        scheduleCreateResult.error.name,
+      );
+    }
+
+    return ScheduleResponse.fromDomainToResponse(scheduleCreateResult.value);
   }
 }

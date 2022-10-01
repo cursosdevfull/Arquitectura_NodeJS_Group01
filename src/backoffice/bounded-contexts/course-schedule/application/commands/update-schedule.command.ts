@@ -1,8 +1,9 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 
-import { Schedule } from '../../domain/aggregates/schedule';
+import { ScheduleRepository } from '../../domain/repositories/schedule.repository';
 import { ScheduleVO } from '../../domain/value-objects/schedule-id.vo';
+import { ScheduleInfrastructure } from '../../infrastructure/schedule.infrastructure';
 
 export class UpdateScheduleCommand implements ICommand {
   constructor(
@@ -20,27 +21,35 @@ export class UpdateScheduleCommand implements ICommand {
 
 @CommandHandler(UpdateScheduleCommand)
 export class UpdateScheduleCommandHandler
-  implements ICommandHandler<UpdateScheduleCommand, any>
+  implements ICommandHandler<UpdateScheduleCommand, void>
 {
-  private findScheduleById(scheduleId: string): Schedule {
-    const scheduleIdResult = ScheduleVO.create(scheduleId);
+  constructor(
+    @Inject(ScheduleInfrastructure) private repository: ScheduleRepository,
+  ) {}
+
+  async execute(command: UpdateScheduleCommand): Promise<void> {
+    const scheduleIdResult = ScheduleVO.create(command.scheduleId);
 
     if (scheduleIdResult.isErr()) {
-      throw new BadRequestException(scheduleIdResult.error.message);
+      throw new BadRequestException(
+        scheduleIdResult.error.message,
+        scheduleIdResult.error.name,
+      );
     }
 
-    const scheduleIdVO = scheduleIdResult.value;
+    const scheduleResult = await this.repository.findById(
+      scheduleIdResult.value.value,
+    );
 
-    return new Schedule({
-      scheduleId: scheduleIdVO,
-      courseId: '723915cb-324e-4d6c-8a46-6e660c79a1e6',
-      subject: 'Curso Docker y Kubernetes desde cero',
-      status: 'READY',
-    });
-  }
+    if (scheduleResult.isErr()) {
+      throw new InternalServerErrorException(
+        scheduleResult.error.message,
+        scheduleResult.error.name,
+      );
+    }
 
-  execute(command: UpdateScheduleCommand): Promise<any> {
-    const schedule = this.findScheduleById(command.scheduleId);
+    const schedule = scheduleResult.value;
+
     schedule.update({
       subject: command.subject,
       status: command.status,
@@ -51,7 +60,7 @@ export class UpdateScheduleCommandHandler
       timeStartAndEnd: command.timeStartAndEnd,
       zoomId: command.zoomId,
     });
-    console.log(schedule.properties());
-    return Promise.resolve();
+    await this.repository.save(schedule);
+    return null;
   }
 }

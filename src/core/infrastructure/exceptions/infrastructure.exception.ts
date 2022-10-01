@@ -1,0 +1,14 @@
+export enum InfrastructureExceptionCode {
+  DEFAULT = 'INFRASTRUCTURE_EXCEPTION',
+  SAVE_SCHEDULE_DATABASE_EXCEPTION = 'SAVE_SCHEDULE_DATABASE_EXCEPTION',
+  FIND_SCHEDULE_BY_ID_DATABASE_EXCEPTION = 'FIND_SCHEDULE_BY_ID_DATABASE_EXCEPTION',
+  SCHEDULE_NOT_FOUND_EXCEPTION = 'SCHEDULE_NOT_FOUND_EXCEPTION',
+  LIST_SCHEDULE_BY_COURSE_DATABASE_EXCEPTION = 'LIST_SCHEDULE_BY_COURSE_DATABASE_EXCEPTION',
+}
+
+export class InfrastructureException extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = InfrastructureExceptionCode.DEFAULT;
+  }
+}

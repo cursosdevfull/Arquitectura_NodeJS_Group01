@@ -52,6 +52,7 @@ export class Schedule extends AggregateRoot {
     super();
     Object.assign(this, properties);
     this.createdAt = new Date();
+    this.active = true;
   }
 
   properties() {

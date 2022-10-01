@@ -1,5 +1,16 @@
+import { err, ok, Result } from 'neverthrow';
+
+import { ScheduleSubjectEmptyException, ScheduleWordsEnoughException } from '../exceptions/schedule-subject';
+import { StatusEmptyException } from '../exceptions/status';
 import { ScheduleVO } from '../value-objects/schedule-id.vo';
 import { Schedule } from './schedule';
+
+export type ScheduleFactoryResult = Result<
+  Schedule,
+  | ScheduleSubjectEmptyException
+  | ScheduleWordsEnoughException
+  | StatusEmptyException
+>;
 
 export class ScheduleFactory {
   create(
@@ -7,14 +18,14 @@ export class ScheduleFactory {
     courseId: string,
     subject: string,
     status: string,
-  ) {
-    if (subject.trim() === '') throw new Error('Subject is required');
+  ): ScheduleFactoryResult {
+    if (subject.trim() === '') return err(new ScheduleSubjectEmptyException());
 
     if (subject.trim().split(' ').length < 5)
-      throw new Error('Subject must be at least 5 words');
+      return err(new ScheduleWordsEnoughException());
 
-    if (status.trim() === '') throw new Error('Status is required');
+    if (status.trim() === '') return err(new StatusEmptyException());
 
-    return new Schedule({ scheduleId, courseId, subject, status });
+    return ok(new Schedule({ scheduleId, courseId, subject, status }));
   }
 }

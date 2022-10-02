@@ -36,4 +36,7 @@ export class ScheduleEntity extends BaseEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   zoomId: string;
+
+  @Column({ type: 'int', nullable: true })
+  totalHours: number;
 }

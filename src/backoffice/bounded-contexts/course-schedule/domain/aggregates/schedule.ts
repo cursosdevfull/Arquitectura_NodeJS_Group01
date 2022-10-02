@@ -16,6 +16,7 @@ export type ScheduleOptional = {
   readonly phrase: string;
   readonly timeStartAndEnd: string;
   readonly zoomId: string;
+  readonly totalHours: number;
 };
 
 export type ScheduleUpdate = {
@@ -27,6 +28,7 @@ export type ScheduleUpdate = {
   readonly phrase: string;
   readonly timeStartAndEnd: string;
   readonly zoomId: string;
+  readonly totalHours: number;
 };
 
 export type ScheduleProperties = Required<ScheduleEssential> &
@@ -44,6 +46,7 @@ export class Schedule extends AggregateRoot {
   private timeStartAndEnd: string;
   private zoomId: string;
   private active: boolean;
+  private totalHours: number = 0;
   private readonly createdAt: Date;
   private updatedAt: Date;
   private deletedAt: Date;
@@ -68,6 +71,7 @@ export class Schedule extends AggregateRoot {
       timeStartAndEnd: this.timeStartAndEnd,
       zoomId: this.zoomId,
       active: this.active,
+      totalHours: this.totalHours,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       deletedAt: this.deletedAt,

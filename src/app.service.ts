@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 
 import { ScheduleEntity } from './backoffice/bounded-contexts/course-schedule/infrastructure/entities/schedule.entity';
+import { SessionEntity } from './backoffice/bounded-contexts/course-schedule/infrastructure/entities/session.entity';
 
 let manager: EntityManager;
 @Injectable()
@@ -21,7 +22,7 @@ export class AppService {
   }
 
   async onModuleInit() {
-    const entities = [ScheduleEntity];
+    const entities = [ScheduleEntity, SessionEntity];
     const config = this.dbConfig();
 
     this.dataSource = await new DataSource({

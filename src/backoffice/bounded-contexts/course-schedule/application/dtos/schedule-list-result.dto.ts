@@ -9,4 +9,5 @@ export class ScheduleListResult {
   readonly phrase: string;
   readonly timeStartAndEnd: string;
   readonly zoomId: string;
+  readonly totalHours: number;
 }

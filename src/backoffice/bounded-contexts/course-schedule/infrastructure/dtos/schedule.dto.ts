@@ -20,6 +20,7 @@ export class ScheduleDTO {
     scheduleEntity.phrase = schedule.properties().phrase;
     scheduleEntity.timeStartAndEnd = schedule.properties().timeStartAndEnd;
     scheduleEntity.zoomId = schedule.properties().zoomId;
+    scheduleEntity.totalHours = schedule.properties().totalHours;
 
     return scheduleEntity;
   }
@@ -39,6 +40,7 @@ export class ScheduleDTO {
         phrase: scheduleEntity.phrase,
         timeStartAndEnd: scheduleEntity.timeStartAndEnd,
         zoomId: scheduleEntity.zoomId,
+        totalHours: scheduleEntity.totalHours,
       };
       return new Schedule(scheduleProperties);
     } else {
@@ -60,6 +62,7 @@ export class ScheduleDTO {
       phrase: scheduleEntity.phrase,
       timeStartAndEnd: scheduleEntity.timeStartAndEnd,
       zoomId: scheduleEntity.zoomId,
+      totalHours: scheduleEntity.totalHours,
     }));
   }
 }

@@ -49,8 +49,6 @@ export class UpdateSessionCommandHandler
       duration: command.duration,
     });
 
-    console.log(session);
-
     await this.repository.save(session);
 
     session.commit();

@@ -24,12 +24,27 @@ import { SessionCreateHandler } from './backoffice/bounded-contexts/course-sched
 import { SessionDeletedHandler } from './backoffice/bounded-contexts/course-schedule/application/events/session-deleted';
 import { SessionUpdateddHandler } from './backoffice/bounded-contexts/course-schedule/application/events/session-updated';
 import {
+  EventSourcingSessionCreateHandler,
+} from './backoffice/bounded-contexts/course-schedule/application/events/sourcing/evt-session-created';
+import {
+  EventSourcingSessionDeleteHandler,
+} from './backoffice/bounded-contexts/course-schedule/application/events/sourcing/evt-session-deleted';
+import {
+  EventSourcingSessionUpdateHandler,
+} from './backoffice/bounded-contexts/course-schedule/application/events/sourcing/evt-session-updated';
+import {
   ListScheduleQueryHandler,
 } from './backoffice/bounded-contexts/course-schedule/application/queries/list-schedule.query';
 import {
   ListSessionQueryHandler,
 } from './backoffice/bounded-contexts/course-schedule/application/queries/list-session.query';
 import { SessionFactory } from './backoffice/bounded-contexts/course-schedule/domain/aggregates/session.factory';
+import {
+  EventSourcingInfrastructure,
+} from './backoffice/bounded-contexts/course-schedule/infrastructure/event-sourcing.infrastructure';
+import {
+  SQSEventPublisher,
+} from './backoffice/bounded-contexts/course-schedule/infrastructure/publisher/sqs-event.publisher';
 import {
   ScheduleInfrastructure,
 } from './backoffice/bounded-contexts/course-schedule/infrastructure/schedule.infrastructure';
@@ -52,9 +67,17 @@ const application = [
   SessionCreateHandler,
   SessionDeletedHandler,
   SessionUpdateddHandler,
+  EventSourcingSessionCreateHandler,
+  EventSourcingSessionUpdateHandler,
+  EventSourcingSessionDeleteHandler,
 ];
 
-const infrastructure = [ScheduleInfrastructure, SessionInfrastructure];
+const infrastructure = [
+  ScheduleInfrastructure,
+  SessionInfrastructure,
+  EventSourcingInfrastructure,
+  SQSEventPublisher,
+];
 @Module({
   imports: [...modules],
   controllers: [...controllers],

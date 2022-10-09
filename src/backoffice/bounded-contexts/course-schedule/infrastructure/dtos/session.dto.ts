@@ -6,19 +6,18 @@ import { SessionEntity } from '../entities/session.entity';
 
 export class SessionDTO {
   static fromDomainToData(session: Session): SessionEntity {
-    console.log('session dto', session);
-    console.log('properties', session.properties());
     const sessionEntity = new SessionEntity();
     sessionEntity.sessionId = session.properties().sessionId.value;
     sessionEntity.scheduleId = session.properties().scheduleId.value;
-    sessionEntity.date = session.properties().date?.toISOString();
+    sessionEntity.date =
+      typeof session.properties().date === 'string'
+        ? session.properties().date.toString()
+        : session.properties().date.toISOString();
     sessionEntity.duration = session.properties().duration.value;
     sessionEntity.active = session.properties().active;
     sessionEntity.createdAt = session.properties().createdAt;
     sessionEntity.updatedAt = session.properties().updatedAt;
     sessionEntity.deletedAt = session.properties().deletedAt;
-
-    console.log('sessionEntity', sessionEntity);
 
     return sessionEntity;
   }

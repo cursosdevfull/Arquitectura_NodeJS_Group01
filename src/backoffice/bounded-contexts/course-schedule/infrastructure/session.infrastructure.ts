@@ -50,8 +50,10 @@ export class SessionInfrastructure implements SessionRepository {
   }
   async save(session: Session): Promise<SessionCreateResult> {
     try {
-      console.log('session received', session);
+      console.log('=============');
+      console.log(session);
       const sessionEntity = SessionDTO.fromDomainToData(session);
+      console.log(sessionEntity);
 
       const sessionSaved = await AppService.manager
         .getRepository(SessionEntity)

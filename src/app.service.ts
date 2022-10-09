@@ -7,6 +7,10 @@ import { SessionEntity } from './backoffice/bounded-contexts/course-schedule/inf
 
 let manager: EntityManager;
 
+export class SQSConfig {
+  readonly url: string;
+  readonly region: string;
+}
 export interface IDBConfigMongo {
   user: string;
   pass: string;
@@ -19,11 +23,11 @@ export class AppService {
 
   private dbConfig() {
     return {
-      host: 'localhost',
-      port: 3307,
+      host: 'database-1.cmuv7any6zxa.us-east-1.rds.amazonaws.com',
+      port: 3306,
       database: 'cursosdev',
-      username: 'cursosdev',
-      password: '12345',
+      username: 'admin',
+      password: 'elgigantedeacero2015',
       synchronize: true,
       logging: false,
     };
@@ -69,5 +73,12 @@ export class AppService {
 
   static get manager() {
     return manager;
+  }
+
+  static get SQS_EVENT_CONFIG(): SQSConfig {
+    return {
+      url: 'https://sqs.us-east-1.amazonaws.com/282865065290/SQS_DDD',
+      region: 'us-east-1',
+    };
   }
 }

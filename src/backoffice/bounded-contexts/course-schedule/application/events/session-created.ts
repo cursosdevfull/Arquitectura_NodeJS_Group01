@@ -28,9 +28,6 @@ export class SessionCreateHandler
 
     const schedule = scheduleResult.value;
     const totalHours = schedule.properties().totalHours + event.duration.value;
-    console.log('totalHours properties', schedule.properties().totalHours);
-    console.log('totalHours event', event.duration.value);
-    console.log('totalHours', totalHours);
     schedule.update({ totalHours });
 
     const updateResult = await this.repository.save(schedule);

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { AppService } from './app.service';
@@ -52,7 +53,7 @@ import { SessionInfrastructure } from './backoffice/bounded-contexts/course-sche
 import { ScheduleController } from './backoffice/bounded-contexts/course-schedule/interfaces/http/schedule.controller';
 import { SessionController } from './backoffice/bounded-contexts/course-schedule/interfaces/http/session.controller';
 
-const modules = [CqrsModule];
+const modules = [CqrsModule, ConfigModule.forRoot()];
 const controllers = [ScheduleController, SessionController];
 const domain = [SessionFactory];
 const application = [

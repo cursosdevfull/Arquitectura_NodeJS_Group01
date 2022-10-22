@@ -23,11 +23,11 @@ export class AppService {
 
   private dbConfig() {
     return {
-      host: 'database-1.cmuv7any6zxa.us-east-1.rds.amazonaws.com',
-      port: 3306,
-      database: 'cursosdev',
-      username: 'admin',
-      password: 'elgigantedeacero2015',
+      host: process.env.host,
+      port: +process.env.port,
+      database: process.env.database,
+      username: process.env.username,
+      password: process.env.password,
       synchronize: true,
       logging: false,
     };

@@ -6,7 +6,7 @@ phases:
       - REPOSITORY_URI=282865065290.dkr.ecr.us-east-1.amazonaws.com/ddd
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 282865065290.dkr.ecr.us-east-1.amazonaws.com/ddd
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=lastest}
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
       - docker build -t $REPOSITORY_URI:latest .

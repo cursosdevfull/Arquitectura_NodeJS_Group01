@@ -1,7 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { MulterModule } from '@nestjs/platform-express';
+import { ThrottlerModule } from '@nestjs/throttler';
 
+import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
   CreateScheduleCommandHandler,
@@ -52,10 +55,35 @@ import {
 import { SessionInfrastructure } from './backoffice/bounded-contexts/course-schedule/infrastructure/session.infrastructure';
 import { ScheduleController } from './backoffice/bounded-contexts/course-schedule/interfaces/http/schedule.controller';
 import { SessionController } from './backoffice/bounded-contexts/course-schedule/interfaces/http/session.controller';
+import { HeadersMiddleware } from './backoffice/bounded-contexts/course-schedule/interfaces/middlewares/headers.middleware';
+import { CreateUserCommandHandler } from './backoffice/bounded-contexts/security/application/commands/create-user.command';
+import { LoginQueryHandler } from './backoffice/bounded-contexts/security/application/queries/login-user.query';
+import {
+  NewAccessTokenQueryHandler,
+} from './backoffice/bounded-contexts/security/application/queries/new-access-token.query';
+import { CryptService } from './backoffice/bounded-contexts/security/application/services/crypt.service';
+import { TokensServices } from './backoffice/bounded-contexts/security/application/services/tokens.service';
+import { UserFactory } from './backoffice/bounded-contexts/security/domain/aggregates/user-factory';
+import { UserInfrastructure } from './backoffice/bounded-contexts/security/infrastructure/user.infrastructure';
+import { SecurityController } from './backoffice/bounded-contexts/security/interfaces/http/security.controller';
+import { RedisMiddlewareCreator } from './backoffice/interfaces/middlewares/redis.middleware';
 
-const modules = [CqrsModule, ConfigModule.forRoot()];
-const controllers = [ScheduleController, SessionController];
-const domain = [SessionFactory];
+const modules = [
+  CqrsModule,
+  ConfigModule.forRoot(),
+  ThrottlerModule.forRoot({
+    ttl: 60,
+    limit: 30,
+  }),
+  MulterModule.register({ dest: './public' }),
+];
+const controllers = [
+  ScheduleController,
+  SessionController,
+  AppController,
+  SecurityController,
+];
+const domain = [SessionFactory, UserFactory];
 const application = [
   CreateScheduleCommandHandler,
   DeleteScheduleCommandHandler,
@@ -71,6 +99,11 @@ const application = [
   EventSourcingSessionCreateHandler,
   EventSourcingSessionUpdateHandler,
   EventSourcingSessionDeleteHandler,
+  CreateUserCommandHandler,
+  CryptService,
+  LoginQueryHandler,
+  TokensServices,
+  NewAccessTokenQueryHandler,
 ];
 
 const infrastructure = [
@@ -78,10 +111,21 @@ const infrastructure = [
   SessionInfrastructure,
   EventSourcingInfrastructure,
   SQSEventPublisher,
+  UserInfrastructure,
 ];
 @Module({
   imports: [...modules],
   controllers: [...controllers],
-  providers: [AppService, ...domain, ...application, ...infrastructure],
+  providers: [AppService, Logger, ...domain, ...application, ...infrastructure],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RedisMiddlewareCreator('team01'), HeadersMiddleware)
+      .forRoutes({ path: '/schedule/:courseId', method: RequestMethod.GET });
+
+    consumer
+      .apply(RedisMiddlewareCreator('team02'))
+      .forRoutes({ path: '/session/:scheduleId', method: RequestMethod.GET });
+  }
+}

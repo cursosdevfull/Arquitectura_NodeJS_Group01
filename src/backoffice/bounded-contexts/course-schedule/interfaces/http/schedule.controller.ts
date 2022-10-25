@@ -1,6 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/backoffice/interfaces/decorators/roles.decorator';
+import { AuthGuard } from 'src/backoffice/interfaces/guards/auth.guard';
 
+import { FormatInterceptor } from '../../../../interfaces/interceptors/format.interceptor';
 import { CreateScheduleCommand } from '../../application/commands/create-schedule.command';
 import { DeleteScheduleCommand } from '../../application/commands/delete-schedule.command';
 import { UpdateScheduleCommand } from '../../application/commands/update-schedule.command';
@@ -10,7 +14,10 @@ import { DeleteScheduleDTO } from './dtos/delete-schedule.dto';
 import { ListScheduleDTO } from './dtos/list-schedule.dto';
 import { UpdateScheduleIdDTO } from './dtos/update-schedule-id.dto';
 
+@ApiTags('Schedule')
 @Controller('schedule')
+@UseGuards(AuthGuard)
+@UseInterceptors(FormatInterceptor)
 export class ScheduleController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -70,8 +77,14 @@ export class ScheduleController {
   }
 
   @Get(':courseId')
-  async listByCourse(@Param() params: ListScheduleDTO) {
+  @Roles('ADMIN')
+  async listByCourse(
+    @Param() params: ListScheduleDTO,
+    @Res({ passthrough: true }) res: any,
+  ) {
     const { courseId } = params;
+
+    console.log('User', res.locals.user);
 
     const query = new ListScheduleQuery(courseId);
 

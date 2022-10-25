@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { DataSource, EntityManager } from 'typeorm';
 
 import { ScheduleEntity } from './backoffice/bounded-contexts/course-schedule/infrastructure/entities/schedule.entity';
 import { SessionEntity } from './backoffice/bounded-contexts/course-schedule/infrastructure/entities/session.entity';
+import { RoleEntity } from './backoffice/bounded-contexts/security/infrastructure/entities/role.entity';
+import { UserEntity } from './backoffice/bounded-contexts/security/infrastructure/entities/user.entity';
+import { Car } from './unit-of-work/entities/Car.entity';
+import { User } from './unit-of-work/entities/User.entity';
 
 let manager: EntityManager;
 
@@ -21,12 +25,14 @@ export interface IDBConfigMongo {
 export class AppService {
   private dataSource: DataSource | void;
 
+  constructor(private readonly logger: Logger) {}
+
   private dbConfig() {
     return {
       host: process.env.host,
       port: +process.env.port,
       database: process.env.database,
-      username: process.env.username,
+      username: process.env.usernameDB,
       password: process.env.password,
       synchronize: true,
       logging: false,
@@ -43,8 +49,17 @@ export class AppService {
   }
 
   async onModuleInit() {
-    const entities = [ScheduleEntity, SessionEntity];
+    const entities = [
+      ScheduleEntity,
+      SessionEntity,
+      UserEntity,
+      RoleEntity,
+      User,
+      Car,
+    ];
     const config = this.dbConfig();
+
+    this.logger.log('Connecting to database...', config);
 
     this.dataSource = await new DataSource({
       type: 'mysql',
